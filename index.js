@@ -29,6 +29,7 @@ async function run() {
 
         const productCollection = client.db("technoStoreDB").collection("products");
         const brandsCollection = client.db("technoStoreDB").collection("brands");
+
         // --------------brand collection start-----------
         // get brand
         app.get('/brand', async (req, res) => {
@@ -52,7 +53,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         })
-        
+
         // get single data depend brand name
         app.get('/product/:brandName', async (req, res) => {
             const brandName = req.params.brandName;
@@ -60,11 +61,33 @@ async function run() {
             const result = await productCollection.find(query).toArray()
             res.send(result)
         })
-        
+
+
         // add product data(post)
         app.post('/product', async (req, res) => {
             const productData = req.body;
             const result = await productCollection.insertOne(productData);
+            res.send(result);
+        })
+
+        // product update (put)
+        app.put('/product/:id', async (req, res) => {
+            const id = req.params.id;
+            const productData = req.body;
+            const filter = { _id: new ObjectId(id)};
+            const options = { upsert: true };
+            const updateProduct = {
+                $set: {
+                    product_name:productData.product_name,
+                    product_image:productData.product_image,
+                    brand_name:productData.brand_name,
+                    category:productData.category,
+                    price:productData.price,
+                    rating:productData.rating,
+                    short_description:productData.short_description,
+                },
+            };
+            const result = await productCollection.updateOne(filter, updateProduct, options)
             res.send(result);
         })
 
