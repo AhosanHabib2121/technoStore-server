@@ -29,6 +29,28 @@ async function run() {
 
         const productCollection = client.db("technoStoreDB").collection("products");
         const brandsCollection = client.db("technoStoreDB").collection("brands");
+        const userCollection = client.db("technoStoreDB").collection("user");
+
+        // --------------user collection start-----------
+        app.post('/user', async (req, res) => {
+            const userData = req.body;
+             const result = await userCollection.insertOne(userData);
+             res.send(result);
+        })
+
+        app.patch('/user', async (req, res) => {
+            const userData = req.body;
+            const filter = { email: userData.email };
+            const updateUser = {
+                $set: {
+                    lastLoginAt: userData.lastLoginAt
+                },
+            }
+            const result = await userCollection.updateOne(filter, updateUser);
+            res.send(result);
+        })
+        // --------------user collection end-----------
+
 
         // --------------brand collection start-----------
         // get brand
