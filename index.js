@@ -30,6 +30,7 @@ async function run() {
         const productCollection = client.db("technoStoreDB").collection("products");
         const brandsCollection = client.db("technoStoreDB").collection("brands");
         const userCollection = client.db("technoStoreDB").collection("user");
+        const addToCartCollection = client.db("technoStoreDB").collection("addToCart");
 
         // --------------user collection start-----------
         app.post('/user', async (req, res) => {
@@ -106,14 +107,37 @@ async function run() {
                     category:productData.category,
                     price:productData.price,
                     rating:productData.rating,
-                    short_description:productData.short_description,
                 },
             };
-            const result = await productCollection.updateOne(filter, updateProduct, options)
+            const result = await productCollection.updateOne(filter, updateProduct, options)    
             res.send(result);
         })
 
         // --------------product collection end-----------
+        
+        // --------------cart collection start-----------
+        // get
+        app.get('/cart', async (req, res) => {
+             const cursor = addToCartCollection.find();
+             const result = await cursor.toArray();
+             res.send(result);
+        })
+
+        // post
+        app.post('/cart', async (req, res) => {
+            const cartData = req.body;
+            const result = await addToCartCollection.insertOne(cartData);
+            res.send(result);
+        })
+
+        // delete
+        app.delete('/cart/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id)};
+            const result = await addToCartCollection.deleteOne(query);
+            res.send(result);
+        })
+        // --------------cart collection end-----------
 
 
 
